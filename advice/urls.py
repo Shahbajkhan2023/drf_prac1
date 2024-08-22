@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import CourseRecommendationView
-
+from .views import StudentListView, StudentDetailView
 
 urlpatterns = [
-    path('recommend/', CourseRecommendationView.as_view(), name='course-recommendation'),
+    path('students/', StudentListView.as_view(), name='student-list'),
+    path('students/<int:pk>/', StudentDetailView.as_view(), name='student-detail'),
 ]

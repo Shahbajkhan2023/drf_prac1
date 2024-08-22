@@ -1,46 +1,52 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, authentication, permissions
+from rest_framework import status
 from .serializers import StudentSerializer
+from .models import Student
 
-class CourseRecommendationView(APIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        # Access request attributes
-        method = request.method
-        content_type = request.content_type
-        accepted_renderer = request.accepted_renderer
-        accepted_media_type = request.accepted_media_type
-
-        # Parse request data
-        serializer = StudentSerializer(data=request.data)
-        if serializer.is_valid():
-            # Extract data
-            course = serializer.validated_data['course']
-            time_remaining = serializer.validated_data['time_remaining']
-            
-            # Generate recommendation
-            language_recommendation = self.get_language_recommendation(course, time_remaining)
-            
-            # Create response
-            response_data = {
-                'recommended_language': language_recommendation,
-                'method': method,
-                'content_type': content_type,
-                'accepted_renderer': str(accepted_renderer),
-                'accepted_media_type': accepted_media_type,
-            }
-            return Response(response_data, status=status.HTTP_200_OK)
+class StudentListView(APIView):
+    def get(self, request, format=None):
+        students = Student.objects.all()
+        serializer = StudentSerializer(students, many=True)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Create a response with serialized data
+        response_data = {
+            'students': serializer.data,
+            'method': request.method,
+            'content_type': request.content_type,
+            'accepted_renderer': str(request.accepted_renderer),
+            'accepted_media_type': request.accepted_media_type,
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
-    def get_language_recommendation(self, course, time_remaining):
-        # Simple recommendation logic
-        if time_remaining < 6:
-            return "JavaScript"
-        elif time_remaining < 12:
-            return "Python"
-        else:
-            return "Java"
+
+class StudentDetailView(APIView):
+    def get(self, request, pk, format=None):
+        try:
+            student = Student.objects.get(pk=pk)
+        except Student.DoesNotExist:
+            return Response({"error": "Student not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = StudentSerializer(student)
+        
+        # Include additional context and attributes
+        renderer_context = {
+            'request': request,
+            'format': format,
+        }
+        response_data = {
+            'student': serializer.data,
+            'method': request.method,
+            'content_type': request.content_type,
+            'accepted_renderer': str(request.accepted_renderer),
+            'accepted_media_type': request.accepted_media_type,
+        }
+        
+        return Response(
+            data=response_data,
+            status=status.HTTP_200_OK,
+            template_name='myapp/student_detail.html',
+            headers={'Custom-Header': 'Value'},
+            content_type='application/json'
+        )
