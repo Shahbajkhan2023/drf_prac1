@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%(5v*t$_e@p)n@olf$5!w4z2f4p$ub8(oa0q#tc(5grjce%*&('
+SECRET_KEY = 'django-insecure-38#v()u-97j_w^g#2&u5#lsa6769-w0jbvg1ym_6ss*tgtzi2*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -26,17 +26,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'advice',
+    'myapp',
 ]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ]
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 
@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'career_advice.urls'
+ROOT_URLCONF = 'project_api_policy.urls'
 
 TEMPLATES = [
     {
@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'career_advice.wsgi.application'
+WSGI_APPLICATION = 'project_api_policy.wsgi.application'
 
 
 # Database
