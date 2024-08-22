@@ -1,27 +1,33 @@
-from rest_framework import generics, filters
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, mixins
 from .models import Book
 from .serializers import BookSerializer
 
 
-class BookListCreateView(generics.ListCreateAPIView):
+# List and Create View
+class BookListCreateView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    search_fields = ['title', 'author']
-    ordering_fields = ['published_date', 'title']
 
-    def get_serializer_class(self):
-        # Custom behavior: return a different serializer if needed
-        return BookSerializer
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        # Custom behavior: set an attribute on the book
-        serializer.save()
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
-class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
+# Retrieve, Update, and Delete View
+class BookDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
